@@ -1,0 +1,19 @@
+{
+  "name": "rugram-server",
+  "version": "1.0.0",
+  "description": "Simple server for RuGram demo to store uploads and posts",
+  "main": "server_fixed.js",
+  "scripts": {
+    "start": "node server_fixed.js",
+    "build:css": "npx tailwindcss@3 -i ./src/styles/tailwind.css -o ./dist/tailwind.css --minify",
+    "watch:css": "npx tailwindcss@3 -i ./src/styles/tailwind.css -o ./dist/tailwind.css --watch"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "tailwindcss": "latest",
+    "postcss": "latest",
+    "autoprefixer": "latest"
+  }
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "username": "daniel",
+    "email": "daniel@example.com",
+    "password": "password123",
+    "name": "Daniel",
+    "avatar": "https://picsum.photos/seed/daniel/64/64"
+  },
+  {
+    "id": 2,
+    "username": "muga055",
+    "email": "muga055@example.com",
+    "password": "qwerty",
+    "name": "muga055",
+    "avatar": "https://picsum.photos/seed/muga055/64/64"
+  }
+]

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RuGram</title>
+<link rel="stylesheet" href="style.css">
+  <!-- Built Tailwind CSS (generated into /dist by `npm run build:css`) -->
+  <link rel="stylesheet" href="dist/tailwind.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <!-- Tailwind via CDN (quick start) -->
+  <script>tailwind = window.tailwind || {}; tailwind.config = { darkMode: 'class' };</script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="light-theme min-h-screen bg-white dark:bg-gray-900">
+
+<nav class="sidebar hidden md:flex flex-col fixed left-0 top-0 h-full md:w-60 p-4 bg-white dark:bg-gray-800 z-30">
+    <a href="#" class="logo" onclick="showPage('feed'); return false;" title="На главную">
+      <img src="images/logo.png" alt="RuGram" class="logo-img">
+    </a>
+    <div class="menu-items">
+        <a href="#" onclick="showPage('feed')" class="active" data-page="feed"><i class="fas fa-home"></i> Главная</a>
+  <a href="#" onclick="openSearch(); return false;"><i class="fas fa-search"></i> Поисковый запрос</a>
+  <!-- 'Интересное' убрано -->
+        <!-- Removed Reels/Messages/Notifications for simplified mobile-first UI -->
+        <a href="#" onclick="openNewPost()"><i class="fas fa-plus-square"></i> Создать</a>
+        <a href="#" onclick="showPage('profile')" data-page="profile"><i class="fas fa-user-circle"></i> Профиль ( - )</a>
+    </div>
+    <div class="theme-toggle">
+        <button onclick="toggleTheme()">
+            <i class="fas fa-moon"></i>
+            <span>Сменить тему</span>
+        </button>
+    </div>
+</nav>
+
+<div class="main-content flex-1 md:ml-60 p-4">
+
+<!-- Авторизация удалена: приложение теперь открывается без входа -->
+
+<div class="content-grid md:flex md:gap-6 max-w-5xl mx-auto w-full">
+  <div class="center flex-1">
+    <!-- Stories -->
+    <div class="stories" id="stories">
+      <!-- JS will fill stories -->
+    </div>
+
+    <!-- Feed -->
+    <div id="feed" class="page">
+      <div id="posts" class="posts"></div>
+    </div>
+
+    <!-- Profile page content (center column) -->
+    <div id="profile" class="page">
+      <h2>Мой профиль</h2>
+      <div id="my-posts" class="posts"></div>
+    </div>
+  </div>
+
+  <aside class="right hidden md:block md:w-80">
+    <div class="right-inner">
+      <div class="user-mini">
+        <img src="https://picsum.photos/seed/me/48/48" alt="me" class="avatar-small">
+        <div class="user-mini-info">
+          <div class="username">User</div>
+          <div class="name">NameUse</div>
+        </div>
+        <a href="#" class="switch">Переключиться</a>
+      </div>
+
+      <!-- Recommendations removed per request -->
+
+      <div class="footer-links">
+        <small>© 2025 RUGRAM SEDIK DANIEL MAKS</small>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- Модальное окно -->
+<div id="post-modal" class="modal">
+  <div class="modal-content max-w-3xl w-full mx-4">
+    <span class="close" onclick="closePostModal()">&times;</span>
+    <div class="modal-container">
+      <div class="modal-media">
+        <img id="modal-img" src="" alt="Post">
+      </div>
+      <div class="modal-info">
+        <div class="modal-header">
+          <img src="https://picsum.photos/seed/me/48/48" class="avatar" alt="user">
+          <div>
+            <div class="user" id="modal-username">Username</div>
+            <div class="meta">Location</div>
+          </div>
+        </div>
+
+        <div class="modal-comments" id="modal-comments">
+          <!-- comments will be rendered here (likes in comments displayed as text, no reply button) -->
+        </div>
+
+        <!-- actions moved into bottom input area for mobile-friendly layout -->
+
+        <div class="modal-input">
+          <div class="modal-input-left">
+            <img id="modal-thumb" src="" alt="thumb" class="modal-thumb" />
+            <button id="modal-like-heart" style="cursor:pointer;">❤️ <span id="modal-likes">0</span></button>
+          </div>
+          <div class="modal-input-center">
+            <input type="text" id="modal-comment-input" placeholder="Добавьте комментарий...">
+          </div>
+          <div class="modal-input-right">
+            <div style="position:relative;">
+              <button id="emoji-btn-modal" class="btn" title="Добавить эмодзи" aria-haspopup="listbox" aria-expanded="false" tabindex="0">😊</button>
+              <div id="emoji-picker-modal" class="emoji-picker" style="display:none" role="region" aria-label="Панель эмодзи"></div>
+            </div>
+            <button id="modal-comment-btn">Опубликовать</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Новый пост / Создание публикации -->
+<div id="new-post-modal" class="modal">
+  <div class="modal-content create-modal mx-auto">
+    <span class="close" onclick="closeNewPost()">&times;</span>
+    <h2>Создание публикации</h2>
+
+    <div id="upload-area" class="upload-area">
+      <div class="upload-illustration">
+        <!-- простая иконка; можно заменить на svg -->
+        <div style="font-size:48px">🖼️</div>
+      </div>
+      <p>Перетащите сюда фото и видео</p>
+      <button id="choose-file-btn" class="primary">Выбрать на компьютере</button>
+      <input type="file" id="new-post-file" accept="image/*" style="display:none">
+    </div>
+
+    <!-- Удаляю возможность добавления дополнительных фотографий -->
+    <div id="preview-area" style="display:none; margin-top:12px;">
+      <div style="display:flex; gap:12px; align-items:flex-start;">
+        <div style="flex:1; text-align:center;">
+          <div class="cropper-wrapper">
+            <canvas id="crop-canvas" class="crop-canvas"></canvas>
+            <div id="crop-selection" class="crop-selection" style="display:none"></div>
+          </div>
+          <div class="preview-controls">
+            <button id="crop-btn" class="btn btn-crop">Обрезать</button>
+            <button id="reset-btn" class="btn btn-reset">Сбросить</button>
+          </div>
+          <div class="filter-list" id="filter-list">
+            <!-- Порядок фильтров: пользователь просил сначала выбрать фильтр -->
+            <div class="filter-item" data-filter="aden">Aden</div>
+            <div class="filter-item" data-filter="clarendon">Clarendon</div>
+            <div class="filter-item" data-filter="crema">Crema</div>
+            <div class="filter-item" data-filter="gingham">Gingham</div>
+            <div class="filter-item" data-filter="juno">Juno</div>
+            <div class="filter-item" data-filter="lark">Lark</div>
+            <div class="filter-item" data-filter="ludwig">Ludwig</div>
+            <div class="filter-item" data-filter="moon">Moon</div>
+            <div class="filter-item" data-filter="none">Оригинал</div>
+            <div class="filter-item" data-filter="perpetua">Perpetua</div>
+            <div class="filter-item" data-filter="reyes">Reyes</div>
+          </div>
+        </div>
+
+        <div style="width:320px; flex:0 0 320px;">
+          <textarea id="post-caption" placeholder="Подпись... (используйте @ чтобы отметить соавторов)" rows="4" style="width:100%; box-sizing:border-box;"></textarea>
+          <div class="meta-row">
+            <input id="post-location" placeholder="Добавить местоположение">
+          </div>
+          <div style="margin-top:12px; text-align:right; display:flex; gap:8px; justify-content:flex-end; align-items:center;">
+            <div style="position:relative;">
+              <button id="emoji-btn" class="btn" title="Добавить эмодзи">😊</button>
+              <div id="emoji-picker" class="emoji-picker" style="display:none"></div>
+            </div>
+            <button id="add-post-btn" class="btn btn-create">Создать</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </div>
+
+  <!-- Поиск пользователей (модал) - вынесен на верхний уровень, чтобы открывался сразу -->
+  <div id="search-modal" class="modal">
+    <div class="modal-content create-modal mx-auto">
+      <span class="close" onclick="closeSearch()">&times;</span>
+      <h2>Поиск пользователей</h2>
+      <div style="padding:12px;">
+        <input id="search-user" placeholder="Поиск по имени пользователя" style="width:100%; padding:8px 10px; border:1px solid var(--border-color); border-radius:8px;">
+        <div id="search-results" style="margin-top:8px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile menu button -->
+  <button id="mobile-menu-btn" class="mobile-menu-btn md:hidden fixed left-4 top-4 z-50" aria-label="menu">☰</button>
+
+  <!-- Mobile bottom navigation (visible on small screens) -->
+  <nav id="mobile-bottom-nav" class="mobile-bottom-nav md:hidden" aria-label="Mobile navigation">
+    <a href="#" class="mbn-item" onclick="showPage('feed'); return false;" title="Главная">
+      <i class="fas fa-home"></i>
+      <span>Главная</span>
+    </a>
+    <a href="#" class="mbn-item" onclick="openSearch(); return false;" title="Поиск">
+      <i class="fas fa-search"></i>
+      <span>Поиск</span>
+    </a>
+    <button class="mbn-item mbn-center" onclick="openNewPost()" title="Создать">
+      <i class="fas fa-plus-square"></i>
+      <span>Создать</span>
+    </button>
+    <a href="#" class="mbn-item" onclick="showPage('profile'); return false;" title="Профиль">
+      <i class="fas fa-user-circle"></i>
+      <span>Профиль</span>
+    </a>
+  </nav>
+
+  <script src="script.js"></script>
+</body>
+</html>

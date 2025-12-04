@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Legacy styles are imported so the build output includes existing custom CSS.
+   After you run the build, `dist/tailwind.css` will contain Tailwind + legacy rules.
+   If you prefer to keep `style.css` externally, remove the import below and update
+   `index.html` to include `dist/tailwind.css` instead of `style.css`.
+*/
+@import "../style.css";
